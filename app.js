@@ -1,14 +1,28 @@
 import express from 'express';
+import sequelize from './src/config/database.js';
+import movieRoutes from './src/routes/movie.routes.js';
 
 const app = express();
-const PORT = 3000;
+const PORT = 3300;
 
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.json({ message: 'API de películas funcionando correctamente' });
-});
+app.use('/api/movies', movieRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+const startServer = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Conexión a la base de datos establecida correctamente.');
+
+    await sequelize.sync();
+    console.log('Modelos sincronizados con la base de datos.');
+
+    app.listen(PORT, () => {
+      console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('No se pudo iniciar el servidor:', error);
+  }
+};
+
+startServer();
